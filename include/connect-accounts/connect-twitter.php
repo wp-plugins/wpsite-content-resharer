@@ -1,6 +1,8 @@
 <?php
 require(WPSITE_TWITTER_RESHARE_PLUGIN_DIR . '/include/api_src/twitteroauth/twitteroauth.php');
 
+$sign_in_transient = get_transient('wpsite_content_reshare_acccount_verify');
+
 if (!isset($settings['twitter']['token']) || $settings['twitter']['token'] == '') {
 	$connection = new TwitterOAuth(self::$api_key, self::$api_secret);
 
@@ -26,7 +28,11 @@ if (!isset($settings['twitter']['token']) || $settings['twitter']['token'] == ''
 
 	self::wpsite_twitter_reshare_schedule_reshare_event($hook, array($args));
 
-} else if (isset($_REQUEST['oauth_verifier']) && get_transient('wpsite_content_reshare_acccount_verify') === false) {
+} else if (isset($_REQUEST['oauth_verifier']) && ($sign_in_transient === false || $sign_in_transient < 10)) {
+
+	if ($sign_in_transient === false) {
+		$sign_in_transient = 0;
+	}
 
 	$connection = new TwitterOAuth(self::$api_key, self::$api_secret, $settings['twitter']['token'], $settings['twitter']['token_secret']);
 
@@ -48,11 +54,13 @@ if (!isset($settings['twitter']['token']) || $settings['twitter']['token'] == ''
 
 	self::wpsite_twitter_reshare_schedule_reshare_event($hook, array($args));
 
-	set_transient('wpsite_content_reshare_acccount_verify', 'wpsite_content_reshare_acccount_verify', 60 * 15);
+	$sign_in_transient++;
+
+	set_transient('wpsite_content_reshare_acccount_verify', $sign_in_transient, 60 * 15);
 
 	?>
 	<script type="text/javascript">
-		window.location = "<?php echo $_SERVER['PHP_SELF']?>?page=<?php echo self::$account_dashboard_page; ?>";
+		window.location = "<?php echo get_admin_url(); ?>admin.php?page=<?php echo self::$account_dashboard_page; ?>";
 	</script>
 	<?php
 
@@ -81,7 +89,7 @@ if (!isset($settings['twitter']['token']) || $settings['twitter']['token'] == ''
 					<a href="https://twitter.com/<?php echo $account->screen_name; ?>" target="_blank"><?php echo $account->screen_name; ?></a>
 				</div>
 				<div class="<?php echo self::$prefix_dash; ?>remove">
-					<a href="<?php echo wp_nonce_url($_SERVER['PHP_SELF'] . '?page=' . self::$account_dashboard_page . '&action=remove&account=' . $settings['id'] . '&type=twitter', 'wpsite_twitter_reshare_admin_settings_remove'); ?>"></a>
+					<a href="<?php echo wp_nonce_url(get_admin_url() . 'admin.php?page=' . self::$account_dashboard_page . '&action=remove&account=' . $settings['id'] . '&type=twitter', 'wpsite_twitter_reshare_admin_settings_remove'); ?>"></a>
 				</div>
 			</div>
 			<?php
@@ -115,7 +123,7 @@ if (!isset($settings['twitter']['token']) || $settings['twitter']['token'] == ''
 				<a href="https://twitter.com/<?php echo $account['twitter']['screen_name']; ?>" target="_blank"><?php echo $account['twitter']['screen_name']; ?></a>
 			</div>
 			<div class="<?php echo self::$prefix_dash; ?>remove">
-				<a href="<?php echo wp_nonce_url($_SERVER['PHP_SELF'] . '?page=' . self::$account_dashboard_page . '&action=remove&account=' . $settings['id'] . '&type=twitter', 'wpsite_twitter_reshare_admin_settings_remove'); ?>"></a>
+				<a href="<?php echo wp_nonce_url(get_admin_url() . 'admin.php?page=' . self::$account_dashboard_page . '&action=remove&account=' . $settings['id'] . '&type=twitter', 'wpsite_twitter_reshare_admin_settings_remove'); ?>"></a>
 			</div>
 		</div>
 		<?php
