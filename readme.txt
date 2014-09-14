@@ -25,7 +25,7 @@ The FREE version includes the following features:
 - Share with Images (i.e., featured image) - get more visibility on Twitter by posting with images.
 - Exclude Posts or Categories - include only evergreen content into your Content Resharer queue. 
 - Add #hashtags from tags or categories - increases search results on Twitter.
-- Custom Post Messages - make your tweets more human and add multiple custom messages to ensure freshness.
+- Custom Post Message - make your tweets more human and add a custom message to ensure freshness.
 - Custom Position Link / Title - Choose your message structure with links at beginning or end.
 - URL Shortener integration (i.e, bitly)
 
