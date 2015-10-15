@@ -3,7 +3,7 @@
 Plugin Name: Content Resharer
 plugin URI: http://www.99robots.com/content-resharer
 Description: This plugin allows site owners to reshare their content automatically on a schedule to bring new life to existing posts and increase traffic.
-version: 1.2.0
+version: 2.0.0
 Author: 99 Robots
 Author URI: http://www.99robots.com
 License: GPL2
@@ -21,12 +21,12 @@ if (!defined('WPSITE_TWITTER_RESHARE_PLUGIN_NAME'))
 /* Plugin directory */
 
 if (!defined('WPSITE_TWITTER_RESHARE_PLUGIN_DIR'))
-    define('WPSITE_TWITTER_RESHARE_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . WPSITE_TWITTER_RESHARE_PLUGIN_NAME);
+    define('WPSITE_TWITTER_RESHARE_PLUGIN_DIR', plugin_dir_path(__FILE__) );
 
 /* Plugin url */
 
 if (!defined('WPSITE_TWITTER_RESHARE_PLUGIN_URL'))
-    define('WPSITE_TWITTER_RESHARE_PLUGIN_URL', WP_PLUGIN_URL . '/' . WPSITE_TWITTER_RESHARE_PLUGIN_NAME);
+    define('WPSITE_TWITTER_RESHARE_PLUGIN_URL', plugins_url() . '/' . WPSITE_TWITTER_RESHARE_PLUGIN_NAME);
 
 /* Plugin text-domain */
 
@@ -36,7 +36,7 @@ if (!defined('WPSITE_TWITTER_RESHARE_PLUGIN_TEXT_DOMAIN'))
 /* Plugin verison */
 
 if (!defined('WPSITE_TWITTER_RESHARE_VERSION_NUM'))
-    define('WPSITE_TWITTER_RESHARE_VERSION_NUM', '1.2.0');
+    define('WPSITE_TWITTER_RESHARE_VERSION_NUM', '2.0.0');
 
 
 /**
@@ -260,7 +260,7 @@ class WPsiteTwitterReshare {
 	 * @access private
 	 * @static
 	 */
-	public static $api_key = 'kEKsMXElcPUvMFIRq9nJuTGoe';
+	public static $api_key = '6UPiXRW3RoeoTU8a0ydnw4jvd';
 
 	/**
 	 * api_secret
@@ -271,7 +271,7 @@ class WPsiteTwitterReshare {
 	 * @access private
 	 * @static
 	 */
-	public static $api_secret = '1EQWMgveYs4Zok50xhb2ThQAn4SH29Hjk76oXEFfvVsMWlZBne';
+	public static $api_secret = 'TZxeMTLIMenZOOdQEdmke1zvEvwSU1f7Lf2YRSY2RK7L21l5qf';
 
 	/**
 	 * Load the text domain
@@ -472,7 +472,7 @@ class WPsiteTwitterReshare {
 	    	'manage_options',
 	    	self::$account_dashboard_page,
 	    	array('WPsiteTwitterReshare', 'wpsite_twitter_reshare_settings'),
-	    	plugin_dir_url(__FILE__) . 'img/wpsite-menu-icon.png'
+	    	plugin_dir_url(__FILE__) . 'img/logo.png" style="width:20px;padding-top: 6px;'
 	    );
 
 	    $account_sub_menu_page = add_submenu_page(
@@ -535,7 +535,13 @@ $faq_sub_menu_page = add_submenu_page(
 	 */
 	static function inline_script_dashboard_pages() {
 
-		wp_enqueue_style('wpsite_twitter_reshare_admin_css', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/css/wpsite_twitter_reshare_admin.css');
+		wp_enqueue_style('wpsite_twitter_reshare_settings_css', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/css/settings.css');
+		wp_enqueue_style('wpsite_twitter_reshare_bootstrap_css', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/css/nnr-bootstrap.min.css');
+		wp_enqueue_style('wpsite_twitter_reshare_fontawesome_css', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/css/font-awesome.min.css');
+
+		wp_enqueue_script('wpsite_twitter_reshare_bootstrap_js', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/js/bootstrap.min.js');
+
+		//wp_enqueue_style('wpsite_twitter_reshare_admin_css', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/css/wpsite_twitter_reshare_admin.css');
 	}
 
 	/**
@@ -653,7 +659,7 @@ $faq_sub_menu_page = add_submenu_page(
 
 				?>
 				<script type="text/javascript">
-					window.location = "<?php echo get_admin_url(); ?>admin.php?page=<?php echo self::$account_dashboard_page; ?>";
+					window.location = "<?php echo get_admin_url(); ?>admin.php?page=<?php echo self::$account_dashboard_page; ?>&action=edit&account=twitter";
 				</script>
 				<?php
 			}
@@ -688,16 +694,16 @@ $faq_sub_menu_page = add_submenu_page(
 
 			/* Delete current cron job for the account */
 
-			$hook = self::$prefix . $settings['accounts'][$_GET['account']]['id'];
-			$args = $settings['accounts'][$_GET['account']];
+			$hook = self::$prefix . $settings['accounts']['twitter']['id'];
+			$args = $settings['accounts']['twitter'];
 			$args['status'] = 'active';
 
 			wp_clear_scheduled_hook($hook, array($args));
 
-			$settings['accounts'][$_GET['account']][$_GET['type']]['token'] = '';
-			$settings['accounts'][$_GET['account']][$_GET['type']]['token_secret'] = '';
-			$settings['accounts'][$_GET['account']][$_GET['type']]['profile_image'] = '';
-			$settings['accounts'][$_GET['account']][$_GET['type']]['screen_name'] = '';
+			$settings['accounts']['twitter']['twitter']['token'] = '';
+			$settings['accounts']['twitter']['twitter']['token_secret'] = '';
+			$settings['accounts']['twitter']['twitter']['profile_image'] = '';
+			$settings['accounts']['twitter']['twitter']['screen_name'] = '';
 
 			update_option('wpsite_twitter_reshare_settings', $settings);
 
@@ -774,7 +780,7 @@ $faq_sub_menu_page = add_submenu_page(
 
 		/* Edit existing account */
 
-		if (isset($_GET['action']) && $_GET['action'] == 'edit' && check_admin_referer('wpsite_twitter_reshare_admin_settings_add_edit')) {
+		if (isset($_GET['action']) && $_GET['action'] == 'edit' /* && check_admin_referer('wpsite_twitter_reshare_admin_settings_add_edit') */) {
 			wp_enqueue_script('wpsite_twitter_reshare_admin_js', WPSITE_TWITTER_RESHARE_PLUGIN_URL . '/js/wpsite_twitter_reshare_admin.js');
 			self::wpsite_twitter_reshare_settings_add_edit($_GET['account']);
 		}
